@@ -919,7 +919,6 @@ class Mongo_db
 			
 			case 'insert':
 			case 'update':
-			case 'delete':
 			case 'truncate':
 				$this->_array_fix($args, 4);
 				list($table, $data, $where, $all) = $args;
@@ -927,11 +926,19 @@ class Mongo_db
 				if(empty($table) && empty($this->table))
 					$this->_error('You must set the database table to be used with your query.');
 				
-				if($action=='delete' && !$all && empty($where) && empty($this->wheres))
-					$this->_error('Deletes are not allowed unless they contain a "where" or "like" clause.');
-				
 				if(($action=='insert' OR $action=='update') && empty($data) && empty($this->data))
 					$this->_error('You must use the "set" method to update an entry.');
+			break;
+			
+			case 'delete':
+				$this->_array_fix($args, 3);
+				list($table, $where, $all) = $args;
+				
+				if(empty($table) && empty($this->table))
+					$this->_error('You must set the database table to be used with your query.');
+				
+				if(!$all && empty($where) && empty($this->wheres))
+					$this->_error('Deletes are not allowed unless they contain a "where" or "like" clause.');
 			break;
 		}
 	}

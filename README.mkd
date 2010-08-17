@@ -56,12 +56,12 @@ Available Functions
 
 ### Modifying Data
 
-	set
-	insert
-	update
-	delete
-	empty_table
-	truncate
+	set					($field|$data, $value])
+	insert				([$table, $data])
+	update				([$table, $data, $where])
+	delete				([$table, $where])
+	empty_table			($table)
+	truncate			($table)
 
 ### Table Data
 
