@@ -1,0 +1,63 @@
+A CodeIgniter library that interfaces with MongoDB through Active Record functions.
+
+Functions
+---------
+
+### Supported
+
+	load				([$group|$DSN|$config, true|false])
+	
+	get					([$table, $limit, $offset])
+	get_where			($table, $where, $limit, $offset)
+	
+	select				($fields)
+	
+	from				($table)
+	
+	where				($field|$array($field=>$value, ...)[, $value])
+	or_where			^^
+	where_in			($field, $array)
+	or_where_in			^^
+	where_not_in		^^
+	or_where_not_in		^^
+	
+	like				($field, $match[, before|after|both])
+	or_like				^^
+	not_like			^^
+	or_not_like			^^
+	
+	limit				($limit, $offset)
+	
+	count_all_results	()
+	count_all			($table)
+	
+	list_tables			()
+	table_exists		($table)
+
+### To do
+
+	select_min
+	select_max
+	select_avg
+	select_sum
+	
+	join
+	
+	group_by
+	distinct
+	having
+	or_having
+	order_by
+	
+	set
+	insert
+	update
+	delete
+	empty_table
+	*truncate
+	
+	*list_fields
+	*field_exists
+	*field_data
+
+* May not apply to MongoDB.
