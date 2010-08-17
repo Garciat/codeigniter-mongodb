@@ -1,9 +1,14 @@
 A CodeIgniter library that interfaces with MongoDB through Active Record functions.
 
-Functions
----------
+Available Functions
+-------------------
 
-### Supported
+### Query Helper Functions
+
+	platform			()
+	version				()
+
+### Selecting Data
 
 	load				([$group|$DSN|$config, true|false])
 	
@@ -30,11 +35,39 @@ Functions
 	
 	count_all_results	()
 	count_all			($table)
+
+### Query Results
+
+	result				()
+	result_array		()
 	
+	row					([$n])
+	row_array			^^
+	
+	first_row			()
+	previous_row		()
+	next_row			()
+	last_row			()
+
+### Result Helper
+
+	num_rows			()
+	num_fields			()
+
+### Table Data
+
 	list_tables			()
 	table_exists		($table)
 
-### To do
+To do Functions
+---------------
+
+### Query Helper Functions
+
+	insert_id
+	affected_rows
+
+### Selecting Data
 
 	select_min
 	select_max
@@ -48,7 +81,19 @@ Functions
 	having
 	or_having
 	order_by
+
+### Active Record Caching
+
+	All functions
+
+### Result Helper
+
+	*free_result
 	
+	* Possibly doesn't apply to MongoDB.
+
+### Modifying Data
+
 	set
 	insert
 	update
@@ -56,8 +101,13 @@ Functions
 	empty_table
 	*truncate
 	
-	*list_fields
-	*field_exists
-	*field_data
+	* Possibly doesn't apply to MongoDB.
 
-* May not apply to MongoDB.
+### Database Forge
+
+	All functions
+
+### Database Utility
+
+	All functions
+
