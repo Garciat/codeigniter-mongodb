@@ -39,7 +39,7 @@ class Mongo_db
 	private $sorts = array();
 	private $limit;
 	private $offset;
-	private $insert = array();
+	private $data = array();
 	
 	function __construct($config=NULL)
 	{
@@ -284,9 +284,12 @@ class Mongo_db
 	{
 		$args = func_get_args();
 		
+		if(is_null($args[0]))
+			return;
+		
 		$wheres = array();
 		if(is_array($args[0]))
-			$wheres = array_merge($wheres, $args[0]);
+			$wheres = $args[0];
 		else
 			$wheres[$args[0]] = $args[1];
 		
@@ -552,49 +555,127 @@ class Mongo_db
 	/**
 	 * 
 	 */
-	public function insert()
-	{
-		
-	}
-	
-	/**
-	 * 
-	 */
 	public function set()
 	{
+		$args = func_get_args();
 		
+		if(is_null($args[0]))
+			return;
+		
+		$data = array();
+		if(is_array($args[0]))
+			$data = $args[0];
+		else
+			$data[$args[0]] = $args[1];
+		
+		$this->data = array_merge($this->data, $data);
+		
+		return $this;
 	}
 	
 	/**
 	 * 
 	 */
-	public function update()
+	public function insert($table=NULL, $data=NULL)
 	{
+		$this->_debug();
 		
+		$this->from($table)->set($data);
+		
+		if($this->db_info['debug']===TRUE)
+		{
+			try
+			{
+				$this->db->{$this->table}->insert($this->data, array('safe'=>TRUE));
+			}
+			catch(Exception $e)
+			{
+				$this->_error('Unable to insert: '.$e->message());
+			}
+		}
+		else
+			$this->db->{$this->table}->insert($this->data);
+		
+		return true;
 	}
 	
 	/**
 	 * 
 	 */
-	public function delete()
+	public function update($table=NULL, $data=NULL, $where=NULL)
 	{
+		$this->_debug();
 		
+		$this->from($table)->set($data)->where($where);
+		
+		if($this->db_info['debug']===TRUE)
+		{
+			try
+			{
+				$this->db->{$this->table}->update($this->wheres, $this->data, array('safe'=>TRUE));
+			}
+			catch(Exception $e)
+			{
+				$this->_error('Unable to update: '.$e->message());
+			}
+		}
+		else
+			$this->db->{$this->table}->update($this->wheres, $this->data);
+		
+		return true;
 	}
 	
 	/**
 	 * 
 	 */
-	public function empty_table()
+	public function delete($table=NULL, $where=NULL, $all=FALSE)
 	{
+		$this->_debug();
 		
+		$this->from($table)->where($where);
+		
+		if($this->db_info['debug']===TRUE)
+		{
+			try
+			{
+				$this->db->{$this->table}->remove($this->wheres, array('safe'=>TRUE));
+			}
+			catch(Exception $e)
+			{
+				$this->_error('Unable to remove: '.$e->message());
+			}
+		}
+		else
+			$this->db->{$this->table}->remove($this->wheres);
+		
+		return true;
 	}
 	
 	/**
 	 * 
 	 */
-	public function truncate()
+	public function empty_table($table=NULL)
 	{
+		return $this->delete($table, NULL, TRUE);
+	}
+	
+	/**
+	 * 
+	 */
+	public function truncate($table=NULL)
+	{
+		$this->_debug();
 		
+		$this->from($table);
+		
+		$result = $this->db->{$this->table}->drop();
+		
+		if(empty($result['ok']) && $this->db_info['debug']===TRUE)
+			$this->_error('Could not delete table "'.$this->table.'".');
+		
+		$this->db->createCollection($table);
+		
+		return true;
 	}
 	
 	/**
@@ -745,13 +826,13 @@ class Mongo_db
 	 */
 	private function _reset()
 	{
-		$this->tables = array();
+		$this->table = '';
 		$this->selects = array();
 		$this->wheres = array();
 		$this->sorts = array();
 		$this->limit;
 		$this->offset;
-		$this->insert = array();
+		$this->data = array();
 	}
 	
 	/**
@@ -834,6 +915,23 @@ class Mongo_db
 				
 				if(!is_null($offset) && (!is_int($offset) OR $offset<0))
 					$this->_error('Offset must be a nonnegative integer.');
+			break;
+			
+			case 'insert':
+			case 'update':
+			case 'delete':
+			case 'truncate':
+				$this->_array_fix($args, 4);
+				list($table, $data, $where, $all) = $args;
+				
+				if(empty($table) && empty($this->table))
+					$this->_error('You must set the database table to be used with your query.');
+				
+				if($action=='delete' && !$all && empty($where) && empty($this->wheres))
+					$this->_error('Deletes are not allowed unless they contain a "where" or "like" clause.');
+				
+				if(($action=='insert' OR $action=='update') && empty($data) && empty($this->data))
+					$this->_error('You must use the "set" method to update an entry.');
 			break;
 		}
 	}

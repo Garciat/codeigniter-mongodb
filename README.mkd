@@ -54,6 +54,15 @@ Available Functions
 	num_rows			()
 	num_fields			()
 
+### Modifying Data
+
+	set
+	insert
+	update
+	delete
+	empty_table
+	truncate
+
 ### Table Data
 
 	list_tables			()
@@ -89,17 +98,6 @@ To do Functions
 ### Result Helper
 
 	*free_result
-	
-	* Possibly doesn't apply to MongoDB.
-
-### Modifying Data
-
-	set
-	insert
-	update
-	delete
-	empty_table
-	*truncate
 	
 	* Possibly doesn't apply to MongoDB.
 
