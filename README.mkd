@@ -33,6 +33,8 @@ Available Functions
 	
 	limit				($limit, $offset)
 	
+	order_by			($field|$fields[, $order])
+	
 	count_all_results	()
 	count_all			($table)
 
@@ -76,6 +78,21 @@ To do Functions
 	insert_id
 	affected_rows
 
+### Active Record Caching
+
+	All functions
+
+### Database Forge
+
+	All functions
+
+### Database Utility
+
+	All functions
+
+Functions not implemented
+-------------------------
+
 ### Selecting Data
 
 	select_min
@@ -89,23 +106,8 @@ To do Functions
 	distinct
 	having
 	or_having
-	order_by
-
-### Active Record Caching
-
-	All functions
 
 ### Result Helper
 
 	*free_result
-	
-	* Possibly doesn't apply to MongoDB.
-
-### Database Forge
-
-	All functions
-
-### Database Utility
-
-	All functions
 

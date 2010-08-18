@@ -36,7 +36,7 @@ class Mongo_db
 	private $table;
 	private $selects = array();
 	private $wheres = array();
-	private $sorts = array();
+	private $orders = array();
 	private $limit;
 	private $offset;
 	private $data = array();
@@ -105,7 +105,7 @@ class Mongo_db
 		if($multi)
 		{
 			$new = new $this($this->config);
-			$new->load($db_info);
+			$new->load($db_info)->_reset();
 			return $new;
 		}
 		
@@ -510,9 +510,42 @@ class Mongo_db
 	/**
 	 * 
 	 */
-	public function order_by()
+	public function order_by($field=NULL, $order=NULL)
 	{
+		$orders = array();
 		
+		if(!is_null($field) && !is_null($order))
+			$orders[$field] = $order;
+		elseif(!is_null($field))
+		{
+			$items = explode(',', $field);
+			foreach($items as $item)
+			{
+				$tmp = explode(' ', trim($item));
+				$orders[$tmp[0]] = $tmp[1];
+			}
+		}
+		
+		foreach($orders as $k=>$v)
+		{
+			switch($v)
+			{
+				case 'desc':
+				case 'DESC':
+					$orders[$k] = -1;
+				break;
+				
+				case 'asc':
+				case 'ASC':
+				default:
+					$orders[$k] = 1;
+				break;
+			}
+		}
+		
+		$this->orders = array_merge($this->orders, $orders);
+		
+		return $this;
 	}
 	
 	/**
@@ -588,13 +621,15 @@ class Mongo_db
 			{
 				$this->db->{$this->table}->insert($this->data, array('safe'=>TRUE));
 			}
-			catch(Exception $e)
+			catch(MongoCursorException $e)
 			{
-				$this->_error('Unable to insert: '.$e->message());
+				$this->_error('Unable to insert: '.$e->getMessage());
 			}
 		}
 		else
 			$this->db->{$this->table}->insert($this->data);
+		
+		$this->_reset();
 		
 		return true;
 	}
@@ -622,6 +657,8 @@ class Mongo_db
 		else
 			$this->db->{$this->table}->update($this->wheres, $this->data);
 		
+		$this->_reset();
+		
 		return true;
 	}
 	
@@ -647,6 +684,8 @@ class Mongo_db
 		}
 		else
 			$this->db->{$this->table}->remove($this->wheres);
+		
+		$this->_reset();
 		
 		return true;
 	}
@@ -754,7 +793,8 @@ class Mongo_db
 						->find($this->wheres)
 						->fields($this->selects)
 						->skip($this->offset)
-						->limit($this->limit);
+						->limit($this->limit)
+						->sort($this->orders);
 		
 		while($row = $cursor->getNext())
 		{
